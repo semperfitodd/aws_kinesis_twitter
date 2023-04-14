@@ -1,0 +1,19 @@
+FROM python:alpine3.17 as builder
+
+WORKDIR /app
+
+COPY produce/requirements.txt .
+
+RUN apk update && \
+    apk add --no-cache build-base && \
+    pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+FROM python:alpine3.17
+
+WORKDIR /app
+
+COPY --from=builder /install /usr/local
+
+COPY produce .
+
+CMD ["python", "produce.py"]
