@@ -3,13 +3,14 @@ import json
 import time
 from datetime import datetime
 
+# Initialize DynamoDB and Kinesis resources and set up constants
 dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
 table_name = 'kinesis_twitter_table'
 stream_name = 'kinesis_twitter_stream'
 
-
 def process_record(record, kinesis):
     try:
+        # Load Kinesis data from the record and parse the tweet data
         kinesis_data = json.loads(record['Data'])
         tweet_data = json.loads(kinesis_data['Data'])
 
@@ -18,7 +19,7 @@ def process_record(record, kinesis):
             print('Skipping record - no id_str field')
             return
 
-        # Extract relevant fields from tweet
+        # Extract relevant fields from the tweet
         tweet_id = tweet_data['id_str']
         timestamp = datetime.strptime(tweet_data['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
         text = tweet_data['text']
@@ -51,35 +52,37 @@ def process_shard(shard_id):
     )['ShardIterator']
 
     while True:
+        # Fetch records from the shard
         response = kinesis.get_records(ShardIterator=shard_iterator, Limit=25)
 
         if not response['Records']:
             break
 
+        # Process each record in the response
         for record in response['Records']:
             process_record(record, kinesis)
 
+        # Update shard iterator and sleep for 1 second
         shard_iterator = response['NextShardIterator']
         time.sleep(1)
 
 
 def main():
     kinesis = boto3.client('kinesis', region_name='us-east-2')
-    response = kinesis.list_shards(StreamName=stream_name)
-    shards = response['Shards']
 
     while True:
-        if not shards:
-            response = kinesis.list_shards(StreamName=stream_name)
-            shards = response['Shards']
+        # List shards in the Kinesis stream
+        response = kinesis.list_shards(StreamName=stream_name)
+        shards = response['Shards']
 
+        # Process each shard
         for shard in shards:
             print(f'Processing shard: {shard["ShardId"]}')
             process_shard(shard['ShardId'])
 
+        # Reset shards and sleep for 15 seconds
         shards = None
         time.sleep(15)
-
 
 if __name__ == '__main__':
     main()

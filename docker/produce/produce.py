@@ -4,12 +4,13 @@ import boto3
 import time
 import os
 
-# Set up Twitter API credentials
+# Set up Twitter API credentials using environment variables
 consumer_key = os.environ['CONSUMER_KEY']
 consumer_secret = os.environ['CONSUMER_SECRET']
 access_token = os.environ['ACCESS_TOKEN']
 access_token_secret = os.environ['ACCESS_TOKEN_SECRET']
 
+# Authenticate with the Twitter API
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
@@ -46,7 +47,8 @@ for tweet in tweets:
     except Exception as e:
         print(f"Failed to send tweet with id {tweet.id_str} to Kinesis. Error: {e}")
 
-# Print total number of tweets processed
+# Print the total number of tweets processed
 print(f"{tweet_count} tweets processed.")
 
+# Sleep for 30 seconds
 time.sleep(30)

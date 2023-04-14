@@ -1,35 +1,44 @@
-# AWS Kinesis Twitter stream
+# AWS Kinesis Twitter Stream
 
-### Set up a Twitter developer account and create an app to obtain the necessary credentials (consumer key, consumer secret, access token, access token secret).
-* Go to the Twitter Developer website: https://developer.twitter.com/
-* Click on "Apply" in the top right corner.
-* If you are not already logged in, you will be prompted to log in with your Twitter account. If you don't have a Twitter account, you will need to create one first.
-* Once logged in, click on "Apply for a Developer Account."
-* Choose the appropriate developer account type: "Hobbyist" or "Business." For most personal projects, the "Hobbyist" option is suitable. Click "Next."
-* Fill out the required information about yourself, such as your name, country, and description. Click "Next."
-* On the next page, you will be asked to provide details about your intended use of the Twitter API. Answer the questions about how you plan to use the API, including the purpose, features you plan to implement, and how you will analyze the data. Be as descriptive as possible, as Twitter will review your application based on your answers.
-* Review the Developer Agreement and accept the terms by checking the box. Click "Submit Application" to submit your application for review.
-* Once your application is submitted, you will receive an email from Twitter. Your application will be reviewed, and you should receive a response within a few days. If your application is approved, you will be granted access to the Twitter Developer Dashboard, where you can manage your apps and API keys.
-### Create AWS services (DynamoDB and Kinesis)
-```
+## Set up a Twitter Developer Account and Create an App
+
+1. Visit the Twitter Developer website: https://developer.twitter.com/
+2. Click on "Apply" in the top right corner.
+3. Log in with your Twitter account or create one if you don't have one.
+4. Click on "Apply for a Developer Account."
+5. Choose the "Hobbyist" or "Business" developer account type and click "Next."
+6. Fill out the required information about yourself and click "Next."
+7. Provide details about your intended use of the Twitter API and click "Next."
+8. Review the Developer Agreement, accept the terms, and click "Submit Application."
+9. Wait for a response from Twitter on your application approval.
+
+## Create AWS Services (DynamoDB and Kinesis)
+
+Navigate to the `terraform` directory and execute the following commands:
+
+```bash
 cd terraform
 terraform init
 terraform plan -out=plan.out
 terraform apply
 ```
-### Build docker images from producer and consumer
-```
+
+## Build docker images from producer and consumer
+
+Navigate to the docker directory and build the Docker images:
+
+```bash
 cd docker
 docker build -t twitter_produce -f Dockerfile_produce .
 docker build -t twitter_consume -f Dockerfile_consume .
 ```
-### Run docker containers for producer and consumer
-* Create keys in the twitter developer console
-* Mounting the credentials into the docker image will allow the docker image to have the appropriate permissions
-* Producer will look for 10 most recent tweets with "devops" in the tweet
-* Producer repeats every 30 seconds
-* Consumer reads stream every 15 seconds
-```
+
+Obtain your Twitter API keys from the Twitter Developer Console.
+Mount the AWS credentials into the Docker container.
+The producer searches for the 10 most recent tweets with "devops" and repeats every 30 seconds.
+The consumer reads the Kinesis stream every 15 seconds.
+
+```bash
 docker run -d --name twitter_produce \
   -e CONSUMER_KEY='<consumer_key_from_twitter>' \
   -e CONSUMER_SECRET='<consumer_secret_from_twitter>' \
@@ -42,15 +51,24 @@ docker run -d --name twitter_consume \
   -e AWS_PROFILE=<profile_name> \
   twitter_consume
 ```
-### Check records in Kinesis streams
+
+## Verify Kinesis and DynamoDB Records
+
+1. Check the records in the Kinesis stream.
 ![kinesis_records.png](images%2Fkinesis_records.png)
-### Confirm records are consumed into DynamoDB
+2. Confirm the records are consumed into DynamoDB.
 ![dynamodb_records.png](images%2Fdynamodb_records.png)
-### Clean up
-```
+
+## Clean up
+
+Stop the Docker containers, remove unused resources, and destroy the infrastructure:
+
+```bash
 docker stop twitter_produce
 docker stop twitter_consume
 docker system prune --force
 
 terraform destroy
 ```
+
+This documentation provides a step-by-step guide to setting up a Twitter Developer account, creating AWS services, building Docker images for producer and consumer, running the Docker containers, verifying Kinesis and DynamoDB records, and cleaning up the resources.
