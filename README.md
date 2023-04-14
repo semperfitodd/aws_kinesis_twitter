@@ -1,5 +1,9 @@
 # AWS Kinesis Twitter Stream
 
+This project demonstrates how to create a real-time data processing pipeline using AWS Kinesis, Twitter API, and DynamoDB. The pipeline fetches tweets based on a specific keyword (e.g., "devops") and streams the data into AWS Kinesis. The Kinesis stream is then consumed by a separate process, which stores the tweets in a DynamoDB table. The producer and consumer processes are containerized using Docker for easy deployment and management.
+
+Follow the steps below to set up the project and get it running.
+
 ## Set up a Twitter Developer Account and Create an App
 
 1. Visit the Twitter Developer website: https://developer.twitter.com/
